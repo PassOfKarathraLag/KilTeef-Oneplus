@@ -25,9 +25,17 @@ jobs:
           echo "Compilando $ZIP"
           unzip -q "$ZIP" -d proyecto
           cd proyecto/*/
-          gradle assembleDebug --stacktrace
+          bash ci-build.sh
+          mkdir -p ../../salida
+          cp app/build/outputs/apk/debug/app-debug.apk "../../salida/${ZIP%.zip}.apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: KilTeef-APK
+          path: salida/*.apk
+          if-no-files-found: error
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
           name: KilTeef oneplus (build ${{ github.run_number }})
-          files: proyecto/*/app/build/outputs/apk/debug/app-debug.apkg/app-debug.apk
+          files: salida/*.apk
+          fail_on_unmatched_files: true
